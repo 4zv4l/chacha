@@ -11,7 +11,7 @@ import (
 
 // take the input file, key and nonce in hex
 // then encrypt the file in a file.cha as output
-func encryptFile(in *os.File, key, nonce string) error {
+func EncryptFile(in *os.File, key, nonce string) error {
 	// buffer to encrypt file
 	buff := make([]byte, 2048)
 	// convert the key and nonce to sha256
@@ -39,7 +39,7 @@ func encryptFile(in *os.File, key, nonce string) error {
 
 // take the input file, key and nonce in hex
 // then decrypt the file in a file.cha as output
-func decryptFile(in *os.File, key, nonce string) error {
+func DecryptFile(in *os.File, key, nonce string) error {
 	// buffer + padding
 	buff := make([]byte, 2048 + chacha20poly1305.Overhead)
 	// convert the key and nonce to sha256
@@ -67,7 +67,7 @@ func decryptFile(in *os.File, key, nonce string) error {
 
 // decryptChaCha20 decrypt ct (cipher text)
 // using the key and the nonce
-func decryptChaCha20(key, nonce, ct []byte) ([]byte, error) {
+func DecryptChaCha20(key, nonce, ct []byte) ([]byte, error) {
 	c, err := chacha20poly1305.NewX(key)
 	if err != nil {
 		return nil, fmt.Errorf("cipher : %s", err)
@@ -85,7 +85,7 @@ func decryptChaCha20(key, nonce, ct []byte) ([]byte, error) {
 // encryptChaCha20 encrypt pt (plain text)
 // using the key and the nonce
 // return the cipher text
-func encryptChaCha20(key, nonce, pt []byte) ([]byte, error) {
+func EncryptChaCha20(key, nonce, pt []byte) ([]byte, error) {
 	c, err := chacha20poly1305.NewX(key)
 	if err != nil {
 		return nil, fmt.Errorf("encryption : %s", err)
