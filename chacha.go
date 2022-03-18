@@ -20,11 +20,13 @@ var Buff_size int = 2048
 func EncryptFile(in, out *os.File, key, nonce string) error {
 	// buffer to encrypt file
 	buff := make([]byte, Buff_size)
-	// convert the key and nonce to sha256
-	Key, tmpNonce := sha256.Sum256([]byte(key)), sha256.Sum256([]byte(nonce))
-	Nonce := tmpNonce[:chacha20poly1305.NonceSizeX]
+	// convert the key to sha256
+	Key := sha256.Sum256([]byte(key))
 	stop := false
 	for !stop {
+		// generate new nonce
+		tmpNonce := sha256.Sum256([]byte(nonce))
+		Nonce := tmpNonce[:chacha20poly1305.NonceSizeX]
 		n, err := in.Read(buff)
 		// check read error
 		if n == 0 { break }
@@ -34,9 +36,6 @@ func EncryptFile(in, out *os.File, key, nonce string) error {
 		if err != nil { return err }
 		_, err = out.Write(enc)
 		if err != nil { return err }
-		// generate new nonce
-		tmpNonce = sha256.Sum256(Nonce)
-		Nonce = tmpNonce[:chacha20poly1305.NonceSizeX]
 	}
 	return nil
 }
@@ -47,11 +46,13 @@ func EncryptFile(in, out *os.File, key, nonce string) error {
 func DecryptFile(in, out *os.File, key, nonce string) error {
 	// buffer + padding
 	buff := make([]byte, Buff_size + chacha20poly1305.Overhead)
-	// convert the key and nonce to sha256
-	Key, tmpNonce := sha256.Sum256([]byte(key)), sha256.Sum256([]byte(nonce))
-	Nonce := tmpNonce[:chacha20poly1305.NonceSizeX]
+	// convert the key to sha256
+	Key := sha256.Sum256([]byte(key))
 	stop := false
 	for !stop {
+		// generate new nonce
+		tmpNonce := sha256.Sum256([]byte(nonce))
+		Nonce := tmpNonce[:chacha20poly1305.NonceSizeX]
 		n, err := in.Read(buff)
 		// check read error
 		if n == 0 { break }
@@ -60,9 +61,6 @@ func DecryptFile(in, out *os.File, key, nonce string) error {
 		dec, err := DecryptChaCha20(Key[:], Nonce[:], buff[:n])
 		_, err = out.Write(dec)
 		if err != nil { return err }
-		// generate new nonce
-		tmpNonce = sha256.Sum256(Nonce)
-		Nonce = tmpNonce[:chacha20poly1305.NonceSizeX]
 	}
 	return nil
 }
