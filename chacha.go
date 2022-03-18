@@ -55,7 +55,7 @@ func DecryptFile(in *os.File, key, nonce string) error {
 		n, err := in.Read(buff)
 		// check read error
 		if n == 0 { break }
-		if err == io.EOF { stop = true } else { return err }
+		if err != nil {if err == io.EOF { stop = true } else { return err }}
 		// decrypt buffer
 		dec, err := DecryptChaCha20(Key[:], Nonce[:], buff[:n])
 		_, err = out.Write(dec)
