@@ -27,7 +27,7 @@ func EncryptFile(in *os.File, key, nonce string) error {
 		n, err := in.Read(buff)
 		// check read error
 		if n == 0 { break }
-		if err == io.EOF { stop = true } else { return err }
+		if err != nil {if err == io.EOF { stop = true } else { return err }}
 		// encrypt buffer
 		enc, err := EncryptChaCha20(Key[:], Nonce[:], buff[:n])
 		if err != nil { return err }
