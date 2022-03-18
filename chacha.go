@@ -1,4 +1,4 @@
-// Package chacha is a layer to the package golang.org/x/crypto/chacha20poly1305
+// Package chacha is a layer to the package golang.org/x/crypto/chacha20poly1305  
 // allowing to easily encrypt/decrypt data or files
 package chacha
 
@@ -10,7 +10,7 @@ import (
 	"golang.org/x/crypto/chacha20poly1305"
 )
 
-// Buff_size is the size of the buffer
+// Buff_size is the size of the buffer  
 // it is set to 2048 bytes (2kb) by default
 var Buff_size int = 2048
 
@@ -66,7 +66,8 @@ func DecryptFile(in, out *os.File, key, nonce string) error {
 }
 
 // decryptChaCha20 decrypt ct (cipher text)
-// using the key and the nonce
+// using the key and the nonce  
+// return the cipher text or an error
 func DecryptChaCha20(key, nonce, ct []byte) ([]byte, error) {
 	c, err := chacha20poly1305.NewX(key)
 	if err != nil {
@@ -83,8 +84,8 @@ func DecryptChaCha20(key, nonce, ct []byte) ([]byte, error) {
 }
 
 // encryptChaCha20 encrypt pt (plain text)
-// using the key and the nonce
-// return the cipher text
+// using the key and the nonce  
+// return the cipher text or an error
 func EncryptChaCha20(key, nonce, pt []byte) ([]byte, error) {
 	c, err := chacha20poly1305.NewX(key)
 	if err != nil {
