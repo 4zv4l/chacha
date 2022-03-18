@@ -29,7 +29,7 @@ func EncryptFile(in *os.File, key, nonce string) error {
 		if n == 0 { break }
 		if err == io.EOF { stop = true } else { return err }
 		// encrypt buffer
-		enc, err := encryptChaCha20(Key[:], Nonce[:], buff[:n])
+		enc, err := EncryptChaCha20(Key[:], Nonce[:], buff[:n])
 		if err != nil { return err }
 		_, err = out.Write(enc)
 		if err != nil { return err }
@@ -57,7 +57,7 @@ func DecryptFile(in *os.File, key, nonce string) error {
 		if n == 0 { break }
 		if err == io.EOF { stop = true } else { return err }
 		// decrypt buffer
-		dec, err := decryptChaCha20(Key[:], Nonce[:], buff[:n])
+		dec, err := DecryptChaCha20(Key[:], Nonce[:], buff[:n])
 		_, err = out.Write(dec)
 		if err != nil { return err }
 		return err
