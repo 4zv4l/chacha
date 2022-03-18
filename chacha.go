@@ -15,13 +15,14 @@ import (
 var Buff_size int = 2048
 
 // take the input/output file, key and nonce in hex
-// then encrypt the file and store result in the output file
+// then encrypt the file and store result in the output file  
+// takes care to change the nonce every time the buffer length is reached
 func EncryptFile(in, out *os.File, key, nonce string) error {
 	// buffer to encrypt file
 	buff := make([]byte, Buff_size)
 	// convert the key and nonce to sha256
-	Key, n := sha256.Sum256([]byte(key)), sha256.Sum256([]byte(nonce))
-	Nonce := n[:chacha20poly1305.NonceSizeX]
+	Key, tmpNonce := sha256.Sum256([]byte(key)), sha256.Sum256([]byte(nonce))
+	Nonce := tmpNonce[:chacha20poly1305.NonceSizeX]
 	stop := false
 	for !stop {
 		n, err := in.Read(buff)
@@ -33,18 +34,22 @@ func EncryptFile(in, out *os.File, key, nonce string) error {
 		if err != nil { return err }
 		_, err = out.Write(enc)
 		if err != nil { return err }
+		// generate new nonce
+		tmpNonce = sha256.Sum256(Nonce)
+		Nonce = tmpNonce[:chacha20poly1305.NonceSizeX]
 	}
 	return nil
 }
 
 // take the input/output file, key and nonce in hex
-// then decrypt the file and store result in the output file
+// then decrypt the file and store result in the output file  
+// takes care to change the nonce every time the buffer length is reached
 func DecryptFile(in, out *os.File, key, nonce string) error {
 	// buffer + padding
 	buff := make([]byte, Buff_size + chacha20poly1305.Overhead)
 	// convert the key and nonce to sha256
-	Key, n := sha256.Sum256([]byte(key)), sha256.Sum256([]byte(nonce))
-	Nonce := n[:chacha20poly1305.NonceSizeX]
+	Key, tmpNonce := sha256.Sum256([]byte(key)), sha256.Sum256([]byte(nonce))
+	Nonce := tmpNonce[:chacha20poly1305.NonceSizeX]
 	stop := false
 	for !stop {
 		n, err := in.Read(buff)
@@ -55,7 +60,9 @@ func DecryptFile(in, out *os.File, key, nonce string) error {
 		dec, err := DecryptChaCha20(Key[:], Nonce[:], buff[:n])
 		_, err = out.Write(dec)
 		if err != nil { return err }
-		return err
+		// generate new nonce
+		tmpNonce = sha256.Sum256(Nonce)
+		Nonce = tmpNonce[:chacha20poly1305.NonceSizeX]
 	}
 	return nil
 }
