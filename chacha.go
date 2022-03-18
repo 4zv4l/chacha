@@ -1,27 +1,23 @@
+// Package chacha is a layer to the package golang.org/x/crypto/chacha20poly1305
+// allowing to easily encrypt/decrypt data or files
 package chacha
 
 import (
 	"fmt"
 	"os"
 	"io"
-	"strings"
 	"crypto/sha256"
 	"golang.org/x/crypto/chacha20poly1305"
 )
 
-// take the input file, key and nonce in hex
-// then encrypt the file in a file.cha as output
-func EncryptFile(in *os.File, key, nonce string) error {
+// take the input/output file, key and nonce in hex
+// then encrypt the file and store result in the output file
+func EncryptFile(in, out *os.File, key, nonce string) error {
 	// buffer to encrypt file
 	buff := make([]byte, 2048)
 	// convert the key and nonce to sha256
 	Key, n := sha256.Sum256([]byte(key)), sha256.Sum256([]byte(nonce))
 	Nonce := n[:chacha20poly1305.NonceSizeX]
-	// setup output file name
-	fname := fmt.Sprintf("%s.cha", in.Name())
-	out, err := os.OpenFile(fname, os.O_CREATE|os.O_RDWR, 0600)
-	if err != nil { return err }
-	defer out.Close()
 	stop := false
 	for !stop {
 		n, err := in.Read(buff)
@@ -37,19 +33,14 @@ func EncryptFile(in *os.File, key, nonce string) error {
 	return nil
 }
 
-// take the input file, key and nonce in hex
-// then decrypt the file in a file.cha as output
-func DecryptFile(in *os.File, key, nonce string) error {
+// take the input/output file, key and nonce in hex
+// then decrypt the file and store result in the output file
+func DecryptFile(in, out *os.File, key, nonce string) error {
 	// buffer + padding
 	buff := make([]byte, 2048 + chacha20poly1305.Overhead)
 	// convert the key and nonce to sha256
 	Key, n := sha256.Sum256([]byte(key)), sha256.Sum256([]byte(nonce))
 	Nonce := n[:chacha20poly1305.NonceSizeX]
-	// setup output file name
-	fname := strings.TrimSuffix(in.Name(), ".cha") + ".dec"
-	out, err := os.OpenFile(fname, os.O_CREATE|os.O_RDWR, 0600)
-	if err != nil { return err }
-	defer out.Close()
 	stop := false
 	for !stop {
 		n, err := in.Read(buff)
