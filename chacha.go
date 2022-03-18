@@ -11,7 +11,7 @@ import (
 )
 
 // Buff_size is the size of the buffer
-// it is set 2048 by default
+// it is set to 2048 bytes (2kb) by default
 var Buff_size int = 2048
 
 // take the input/output file, key and nonce in hex
