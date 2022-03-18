@@ -10,15 +10,15 @@ import (
 	"golang.org/x/crypto/chacha20poly1305"
 )
 
-// buff_size is the size of the buffer
+// Buff_size is the size of the buffer
 // it is set 2048 by default
-var buff_size int = 2048
+var Buff_size int = 2048
 
 // take the input/output file, key and nonce in hex
 // then encrypt the file and store result in the output file
 func EncryptFile(in, out *os.File, key, nonce string) error {
 	// buffer to encrypt file
-	buff := make([]byte, buff_size)
+	buff := make([]byte, Buff_size)
 	// convert the key and nonce to sha256
 	Key, n := sha256.Sum256([]byte(key)), sha256.Sum256([]byte(nonce))
 	Nonce := n[:chacha20poly1305.NonceSizeX]
@@ -41,7 +41,7 @@ func EncryptFile(in, out *os.File, key, nonce string) error {
 // then decrypt the file and store result in the output file
 func DecryptFile(in, out *os.File, key, nonce string) error {
 	// buffer + padding
-	buff := make([]byte, buff_size + chacha20poly1305.Overhead)
+	buff := make([]byte, Buff_size + chacha20poly1305.Overhead)
 	// convert the key and nonce to sha256
 	Key, n := sha256.Sum256([]byte(key)), sha256.Sum256([]byte(nonce))
 	Nonce := n[:chacha20poly1305.NonceSizeX]
